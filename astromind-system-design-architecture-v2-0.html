@@ -1,0 +1,558 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AstroMind — System Design v2.0</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 40px 20px;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+
+  /* Header */
+  .doc-header {
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+  }
+  .doc-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .doc-header .subtitle { color: #57606a; font-size: 13px; }
+
+  /* Info table */
+  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+  .info-table td { padding: 7px 12px; border: 1px solid #e5e7eb; font-size: 13px; }
+  .info-table td:first-child { background: #f7f8fa; font-weight: 600; width: 160px; }
+  .badge-revised { background: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-done { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-yellow { background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+
+  /* Section */
+  .section { margin-bottom: 36px; }
+  .section-title {
+    font-size: 16px; font-weight: 700;
+    border-left: 4px solid #3b82d4;
+    padding-left: 10px;
+    margin-bottom: 14px;
+  }
+  .section-sub {
+    font-size: 14px; font-weight: 600;
+    margin: 18px 0 8px;
+    color: #1f2328;
+  }
+
+  /* Change notice */
+  .change-notice {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    color: #1e40af;
+  }
+  .change-notice strong { display: block; margin-bottom: 4px; }
+
+  /* Architecture layers */
+  .arch-layers { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+  .arch-layer {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .arch-layer:last-child { border-bottom: none; }
+  .layer-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+    white-space: nowrap; margin-top: 2px; min-width: 90px; text-align: center;
+  }
+  .layer-p { background: #f0fdf4; color: #166534; }
+  .layer-o { background: #eff6ff; color: #1d4ed8; }
+  .layer-a { background: #fdf4ff; color: #7e22ce; }
+  .layer-l { background: #fff7ed; color: #9a3412; }
+  .layer-k { background: #fefce8; color: #854d0e; }
+  .layer-d { background: #f7f8fa; color: #374151; }
+  .layer-content { flex: 1; }
+  .layer-content strong { font-size: 13px; }
+  .layer-content p { font-size: 12px; color: #57606a; margin-top: 2px; }
+  .new-tag { background: #dcfce7; color: #166534; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 6px; }
+  .updated-tag { background: #fef9c3; color: #854d0e; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 6px; }
+
+  /* General table */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 13px; }
+  th { background: #f7f8fa; font-weight: 600; padding: 8px 12px; text-align: left; border: 1px solid #e5e7eb; }
+  td { padding: 7px 12px; border: 1px solid #e5e7eb; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Code block */
+  .code-block {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: "Consolas", "Menlo", monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre;
+    overflow-x: auto;
+    margin-bottom: 12px;
+  }
+
+  /* Prompt box */
+  .prompt-box {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .prompt-section {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .prompt-section:last-child { border-bottom: none; }
+  .prompt-num {
+    background: #3b82d4; color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 2px 7px; border-radius: 3px;
+    white-space: nowrap; margin-top: 1px;
+  }
+  .prompt-section-title { font-weight: 600; margin-bottom: 2px; }
+  .prompt-section-desc { font-size: 12px; color: #57606a; }
+
+  /* Flow diagram text */
+  .flow-box {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 12px;
+    font-family: "Consolas", "Menlo", monospace;
+    line-height: 1.9;
+    margin-bottom: 12px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* Status steps */
+  .steps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .step {
+    display: flex; gap: 10px; align-items: center;
+    padding: 8px 12px; border-radius: 6px;
+    border: 1px solid #e5e7eb; font-size: 13px;
+  }
+  .step-done { background: #f0fdf4; }
+  .step-next { background: #eff6ff; }
+  .step-later { background: #fafafa; }
+  .step-icon { font-size: 16px; }
+  .step-text strong { display: block; }
+  .step-text span { font-size: 12px; color: #57606a; }
+
+  /* Footer */
+  .footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 12px;
+    color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  
+  <div class="doc-header">
+    <h1>🚀 AstroMind — System Design &amp; Architecture</h1>
+    <div class="subtitle">AI Psychological Companion for Long-Duration Space Missions</div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">📌 Document Information</div>
+    <table class="info-table">
+      <tr><td>Project Name</td><td>AstroMind — AI Psychological Companion</td></tr>
+      <tr><td>Version</td><td>2.0 — Revised MVP Architecture <span class="badge-revised">REVISED</span></td></tr>
+      <tr><td>Previous Version</td><td>1.0 — Original 3-Layer Architecture</td></tr>
+      <tr><td>Stage</td><td>Step 4 — System Design &amp; Architecture</td></tr>
+      <tr><td>Status</td><td><span class="badge-done">✅ COMPLETE</span></td></tr>
+    </table>
+  </div>
+
+  
+  <div class="change-notice">
+    <strong>⚠️ v2.0 Architecture Change Notice</strong>
+    This document supersedes v1.0. The original 3-layer architecture (Presentation → Application → Data) has been expanded to a <strong>5-layer architecture</strong> incorporating the IBM ecosystem. The Presentation, AI Core, and Data layers are preserved. The LLM layer is upgraded from OpenAI to IBM Granite via watsonx.ai. Two new layers have been added: Orchestration (LangChain) and Knowledge (Docling + RAG). ContextForge / MCP is deferred to Phase 2.
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">1. 🗺️ Architecture Overview</div>
+    <p style="margin-bottom:14px">AstroMind v2.0 follows a <strong>5-layer architecture</strong> with clear separation between UI, orchestration, AI core processing, LLM inference, knowledge retrieval, and data persistence.</p>
+
+    <div class="arch-layers">
+      <div class="arch-layer">
+        <span class="layer-badge layer-p">Layer 1</span>
+        <div class="layer-content">
+          <strong>🖥️ Presentation Layer — Streamlit</strong>
+          <p>Chat interface, mood dashboard, alert panel, session summary view. Unchanged from v1.0.</p>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="layer-badge layer-o">Layer 2</span>
+        <div class="layer-content">
+          <strong>⚙️ Orchestration Layer — LangChain + LangFlow <span class="new-tag">NEW</span></strong>
+          <p>Manages conversation memory, LLM chains, structured output parsing, and RAG context injection. Replaces hand-rolled conversation.py, client.py, and parser.py.</p>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="layer-badge layer-a">Layer 3</span>
+        <div class="layer-content">
+          <strong>🧠 Application / AI Core Layer — Python</strong>
+          <p>Mood Detection Engine, Health Score Calculator, Risk Classifier, Coping Strategy Selector, Summary Generator. Logic preserved; wiring delegated to LangChain.</p>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="layer-badge layer-l">Layer 4</span>
+        <div class="layer-content">
+          <strong>🤖 LLM Layer — IBM Granite via watsonx.ai <span class="updated-tag">UPDATED</span></strong>
+          <p>Primary: ibm/granite-3-8b-instruct. Replaces OpenAI GPT-4o. Enterprise-grade, privacy-first, IBM Cloud hosted.</p>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="layer-badge layer-k">Layer 5</span>
+        <div class="layer-content">
+          <strong>📚 Knowledge Layer — Docling + ChromaDB <span class="new-tag">NEW</span></strong>
+          <p>Ingests NASA PDF documents (STD-3001, HRP Behavioral Health reports) via Docling, stores chunks in ChromaDB, injects relevant context into each LLM call via RAG.</p>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="layer-badge layer-d">Layer 6</span>
+        <div class="layer-content">
+          <strong>🗃️ Data Layer — SQLite</strong>
+          <p>Sessions, mood scores, messages, alerts, summaries. Unchanged from v1.0.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">2. 🧱 Component Breakdown</div>
+
+    <div class="section-sub">2.1 Presentation Layer (unchanged)</div>
+    <table>
+      <tr><th>Component</th><th>Description</th><th>Tool</th></tr>
+      <tr><td>💬 Chat Interface</td><td>Multi-turn conversation UI between astronaut and AstroMind</td><td>Streamlit st.chat_message</td></tr>
+      <tr><td>📊 Mood Dashboard</td><td>Line chart showing mood score trend across sessions</td><td>Plotly / Streamlit charts</td></tr>
+      <tr><td>🚨 Alert Panel</td><td>Visual HIGH RISK banner triggered by risk classifier</td><td>Streamlit st.warning / st.error</td></tr>
+      <tr><td>📋 Session Summary</td><td>Auto-generated 3–5 sentence summary of each session</td><td>Streamlit st.expander</td></tr>
+    </table>
+
+    <div class="section-sub">2.2 Orchestration Layer — NEW</div>
+    <table>
+      <tr><th>Component</th><th>Responsibility</th><th>LangChain Class</th></tr>
+      <tr><td>🔗 Conversation Memory</td><td>Maintains full multi-turn message history</td><td>ConversationBufferMemory</td></tr>
+      <tr><td>⛓️ LLM Chain</td><td>Wires prompt → memory → LLM → parser in one call</td><td>LLMChain / ConversationChain</td></tr>
+      <tr><td>📤 Output Parser</td><td>Validates and types Granite JSON output</td><td>StructuredOutputParser + Pydantic</td></tr>
+      <tr><td>🔍 RAG Retriever</td><td>Fetches relevant NASA doc chunks per user message</td><td>ChromaDB VectorStoreRetriever</td></tr>
+      <tr><td>🌊 LangFlow Pipeline</td><td>Visual builder for pipeline prototyping and demo</td><td>LangFlow (export to LangChain)</td></tr>
+    </table>
+
+    <div class="section-sub">2.3 Application / AI Core Layer (logic preserved)</div>
+    <table>
+      <tr><th>Component</th><th>Responsibility</th><th>Key Logic</th></tr>
+      <tr><td>😟 Mood Detection Engine</td><td>Extracts mood label from LLM structured output</td><td>Parses JSON: {mood, score, risk, response}</td></tr>
+      <tr><td>📈 Health Score Calculator</td><td>Converts mood signal into a 0–100 wellness score</td><td>Weighted formula based on mood + risk</td></tr>
+      <tr><td>🚨 Risk Classifier</td><td>Classifies session as LOW / MEDIUM / HIGH</td><td>Keyword + LLM-based dual detection</td></tr>
+      <tr><td>💡 Coping Strategy Selector</td><td>Maps detected mood to evidence-based strategies</td><td>Lookup table + LLM personalization</td></tr>
+      <tr><td>📝 Summary Generator</td><td>Calls LLM to produce a session narrative summary</td><td>Separate summarization chain</td></tr>
+    </table>
+    <p style="font-size:12px;color:#57606a;margin-top:4px">⚠️ Note: The original <strong>Conversation Manager</strong> component is removed — its responsibility is fully absorbed by LangChain's ConversationBufferMemory + LLMChain.</p>
+
+    <div class="section-sub">2.4 LLM Layer — UPDATED</div>
+    <table>
+      <tr><th>Option</th><th>Model</th><th>Status</th></tr>
+      <tr><td>✅ <strong>IBM watsonx.ai</strong></td><td>ibm/granite-3-8b-instruct</td><td><strong>PRIMARY</strong> — enterprise-grade, privacy-first, IBM Cloud</td></tr>
+      <tr><td>🟡 Ollama (local)</td><td>LLaMA 3 / Mistral</td><td>Offline demo fallback only</td></tr>
+      <tr><td>❌ OpenAI</td><td>GPT-4 / GPT-4o</td><td>Removed from MVP — deferred to Phase 2 option</td></tr>
+    </table>
+
+    <div class="section-sub">2.5 Knowledge Layer — NEW</div>
+    <table>
+      <tr><th>Component</th><th>Responsibility</th><th>Tool</th></tr>
+      <tr><td>📄 PDF Ingestion</td><td>Parse NASA PDFs into clean text chunks</td><td>Docling</td></tr>
+      <tr><td>🗂️ Vector Store</td><td>Store and retrieve document embeddings</td><td>ChromaDB</td></tr>
+      <tr><td>🔍 RAG Pipeline</td><td>Inject relevant doc context into each LLM prompt</td><td>LangChain RetrievalQA</td></tr>
+      <tr><td>📚 Source Documents</td><td>NASA-STD-3001 Vol 2, HRP Behavioral Health Report, HI-SEAS analog data</td><td>Public NASA PDFs</td></tr>
+    </table>
+
+    <div class="section-sub">2.6 Data Layer (unchanged)</div>
+    <table>
+      <tr><th>Table</th><th>Fields</th><th>Purpose</th></tr>
+      <tr><td>sessions</td><td>id, crew_id, timestamp, duration</td><td>Track each conversation session</td></tr>
+      <tr><td>mood_scores</td><td>session_id, mood, score, risk_level</td><td>Store per-session psychological metrics</td></tr>
+      <tr><td>messages</td><td>session_id, role, content, timestamp</td><td>Full conversation transcript</td></tr>
+      <tr><td>alerts</td><td>session_id, risk_level, trigger, timestamp</td><td>Log all HIGH/MEDIUM risk events</td></tr>
+      <tr><td>summaries</td><td>session_id, summary_text</td><td>Store AI-generated session summaries</td></tr>
+    </table>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">3. 🔄 Core Data Flow</div>
+
+    <div class="section-sub">3.1 Conversation Flow (Revised)</div>
+    <div class="flow-box">Astronaut types message
+        │
+        ▼
+[Streamlit UI] → sends message to Orchestration Layer
+        │
+        ▼
+[LangChain] → retrieves conversation history from ConversationBufferMemory
+        │
+        ▼
+[ChromaDB RAG] → fetches top-3 relevant NASA doc chunks
+        │
+        ▼
+[LangChain LLMChain] → builds prompt: system + history + RAG context + user message
+        │
+        ▼
+[IBM Granite via watsonx.ai] → returns structured JSON response
+        │
+        ▼
+[StructuredOutputParser + Pydantic] → validates {mood, score, risk, response, coping}
+        │
+        ├──→ [Mood Engine] → extracts mood + score
+        ├──→ [Risk Classifier] → classifies LOW/MEDIUM/HIGH
+        ├──→ [Coping Selector] → maps strategy
+        ├──→ [SQLite] → persists message + mood score
+        │
+        ▼
+[Streamlit UI] → renders response + updates dashboard</div>
+
+    <div class="section-sub">3.2 Session End Flow (unchanged)</div>
+    <div class="flow-box">User ends session
+        │
+        ▼
+[Summary Generator] → sends full transcript to Granite via summarization chain
+        │
+        ▼
+[SQLite] → stores summary + final score + risk level
+        │
+        ▼
+[Streamlit] → displays session summary in st.expander</div>
+
+    <div class="section-sub">3.3 Knowledge Ingestion Flow — NEW</div>
+    <div class="flow-box">NASA PDF files placed in knowledge/docs/
+        │
+        ▼
+[Docling] → parses PDF → extracts clean structured text
+        │
+        ▼
+[LangChain TextSplitter] → chunks text into ~500 token segments
+        │
+        ▼
+[ChromaDB] → embeds chunks → stores vector index
+        │
+        ▼ (at query time)
+[RAG Retriever] → similarity search on astronaut message
+        │
+        ▼
+Top-3 chunks injected into Granite prompt as grounding context</div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">4. 🧠 System Prompt Architecture (updated for RAG)</div>
+    <p style="margin-bottom:12px">The system prompt now includes a 5th section for RAG context injection:</p>
+    <div class="prompt-box">
+      <div class="prompt-section">
+        <span class="prompt-num">S1</span>
+        <div><div class="prompt-section-title">Persona &amp; Role Definition</div><div class="prompt-section-desc">Who AstroMind is, its tone, its mission aboard a long-duration space flight</div></div>
+      </div>
+      <div class="prompt-section">
+        <span class="prompt-num">S2</span>
+        <div><div class="prompt-section-title">Behavioral Rules</div><div class="prompt-section-desc">What it must/must not do — warmth, no diagnosis, emergency protocol triggers</div></div>
+      </div>
+      <div class="prompt-section">
+        <span class="prompt-num">S3</span>
+        <div><div class="prompt-section-title">Mood Detection Instructions</div><div class="prompt-section-desc">Classify mood: CALM / STRESSED / ANXIOUS / FATIGUED / DEPRESSED. Score 0–100. Risk: LOW/MEDIUM/HIGH</div></div>
+      </div>
+      <div class="prompt-section">
+        <span class="prompt-num">S4</span>
+        <div>
+          <div class="prompt-section-title">NASA Knowledge Context <span class="new-tag">NEW</span></div>
+          <div class="prompt-section-desc">Injected at runtime by RAG retriever — relevant excerpts from NASA-STD-3001 and HRP Behavioral Health docs grounding the response in evidence-based protocols</div>
+        </div>
+      </div>
+      <div class="prompt-section">
+        <span class="prompt-num">S5</span>
+        <div><div class="prompt-section-title">Output Format (JSON)</div><div class="prompt-section-desc">Structured JSON: {mood, score, risk_level, response, coping_strategy} — parsed by StructuredOutputParser</div></div>
+      </div>
+    </div>
+
+    <div class="code-block">SYSTEM_PROMPT = """
+## ROLE
+You are AstroMind, an empathetic AI psychological companion aboard
+a long-duration space mission. You provide emotional support,
+active listening, and evidence-based coping strategies to crew members.
+
+## BEHAVIORAL RULES
+- Always respond with warmth, clarity, and calm
+- Never diagnose medical or psychiatric conditions
+- Never minimize the astronaut's feelings
+- If extreme distress or suicidal ideation is detected,
+  always include emergency protocol reminder
+- Keep responses under 100 words unless more depth is needed
+
+## MOOD DETECTION
+After each astronaut message, assess their emotional state.
+Classify mood as one of: CALM, STRESSED, ANXIOUS, FATIGUED, DEPRESSED
+Assign a wellness score from 0 (crisis) to 100 (thriving)
+Classify risk as: LOW, MEDIUM, or HIGH
+
+## NASA KNOWLEDGE CONTEXT
+{rag_context}
+Use the above NASA-grounded evidence to inform coping strategies
+and risk thresholds. If no context is provided, use general best practices.
+
+## OUTPUT FORMAT
+Always respond in this exact JSON format:
+{
+  "mood": "STRESSED",
+  "score": 45,
+  "risk_level": "MEDIUM",
+  "response": "Your empathetic response text here...",
+  "coping_strategy": "Try the 4-7-8 breathing technique..."
+}
+"""</div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">5. 📁 Project File Structure (Revised)</div>
+    <div class="code-block">astromind/
+│
+├── app.py                        # Streamlit entry point
+│
+├── core/                         # AI Core Layer
+│   ├── mood_engine.py            # Mood Detection + Score + Risk
+│   ├── summarizer.py             # Session Summary Generator
+│   └── coping.py                 # Coping Strategy Selector
+│   # conversation.py REMOVED → replaced by LangChain memory
+│
+├── orchestration/                # NEW — LangChain wiring
+│   ├── chain.py                  # LLMChain + memory setup
+│   ├── memory.py                 # ConversationBufferMemory
+│   └── output_parser.py          # StructuredOutputParser + Pydantic models
+│
+├── llm/
+│   ├── client.py                 # WatsonxLLM wrapper (swappable)
+│   └── prompts.py                # System prompts (with RAG slot)
+│   # parser.py REMOVED → replaced by LangChain StructuredOutputParser
+│
+├── knowledge/                    # NEW — Docling + RAG
+│   ├── ingestion.py              # Docling PDF → text chunks
+│   ├── vectorstore.py            # ChromaDB setup + similarity query
+│   └── docs/                     # NASA source PDFs
+│       ├── nasa_std_3001_vol2.pdf
+│       └── hrp_behavioral_health.pdf
+│
+├── data/
+│   ├── database.py               # SQLite connection + queries
+│   └── astromind.db              # SQLite database file
+│
+├── ui/
+│   ├── chat.py                   # Chat interface component
+│   ├── dashboard.py              # Mood trend dashboard
+│   └── alerts.py                 # Alert panel component
+│
+├── tests/
+│   ├── test_mood.py              # Mood detection tests
+│   └── test_scenarios.py         # Scripted conversation tests
+│
+├── .env                          # API keys (never commit)
+├── requirements.txt              # Python dependencies
+└── README.md                     # Project documentation</div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">6. 🔌 API Design (Internal Function Contracts)</div>
+    <table>
+      <tr><th>Function</th><th>Input</th><th>Output</th></tr>
+      <tr><td>chat()</td><td>crew_id, message, session_id</td><td>{mood, score, risk, response, coping}</td></tr>
+      <tr><td>end_session()</td><td>session_id</td><td>{summary, final_score, risk_level}</td></tr>
+      <tr><td>get_sessions()</td><td>crew_id</td><td>[{session_id, date, score, risk}]</td></tr>
+      <tr><td>get_alerts()</td><td>—</td><td>[{session_id, risk_level, timestamp}]</td></tr>
+      <tr><td>ingest_docs()</td><td>pdf_path</td><td>chunks stored in ChromaDB</td></tr>
+    </table>
+    <p style="font-size:12px;color:#57606a">MVP Note: With Streamlit, these are internal Python function calls — no HTTP API needed unless frontend and backend are separated.</p>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">7. 🛡️ Security &amp; Privacy Design</div>
+    <table>
+      <tr><th>Protection</th><th>Implementation</th></tr>
+      <tr><td>🔑 API Key Security</td><td>Stored in .env, never in code</td></tr>
+      <tr><td>👤 Anonymization</td><td>crew_id used instead of real names</td></tr>
+      <tr><td>🔒 DB Encryption</td><td>SQLite with SQLCipher in Phase 2</td></tr>
+      <tr><td>👁️ Role-based Views</td><td>Flight Surgeon sees scores; Mission Control sees alerts only</td></tr>
+      <tr><td>🚫 No LLM Data Retention</td><td>IBM watsonx.ai does not train on API calls</td></tr>
+      <tr><td>📄 NASA Docs Privacy</td><td>Docling runs locally — no external upload of parsed content</td></tr>
+    </table>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">8. ⚡ Tech Stack Summary (v2.0)</div>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Reason</th></tr>
+      <tr><td>Language</td><td>Python 3.11+</td><td>Universal AI/ML language</td></tr>
+      <tr><td>UI Framework</td><td>Streamlit</td><td>Fastest path to working chat + dashboard</td></tr>
+      <tr><td>LLM Provider</td><td><strong>IBM Granite 3 8B Instruct</strong></td><td>Privacy-first, IBM ecosystem, enterprise-ready</td></tr>
+      <tr><td>LLM Access</td><td><strong>IBM watsonx.ai</strong></td><td>Official Granite API via IBM Cloud</td></tr>
+      <tr><td>Orchestration</td><td><strong>LangChain</strong></td><td>Memory, chains, structured output — replaces manual wiring</td></tr>
+      <tr><td>Pipeline Viz</td><td><strong>LangFlow</strong></td><td>Visual demo of AI flow, exportable to LangChain</td></tr>
+      <tr><td>Doc Processing</td><td><strong>Docling</strong></td><td>Ingest NASA PDFs → knowledge context for Granite</td></tr>
+      <tr><td>Vector Store</td><td><strong>ChromaDB</strong></td><td>Local, zero-config embedding store for RAG</td></tr>
+      <tr><td>Output Validation</td><td>Pydantic v2</td><td>Validate Granite JSON structured output</td></tr>
+      <tr><td>Database</td><td>SQLite</td><td>Zero-config session/mood storage</td></tr>
+      <tr><td>Charts</td><td>Plotly Express</td><td>Interactive mood trend visualisation</td></tr>
+      <tr><td>Environment</td><td>python-dotenv</td><td>Secure .env key management</td></tr>
+      <tr><td>Testing</td><td>pytest</td><td>Unit + scenario tests</td></tr>
+      <tr><td style="color:#57606a">Phase 2</td><td style="color:#57606a">ContextForge / MCP</td><td style="color:#57606a">Deferred — expose AstroMind tools as MCP services</td></tr>
+    </table>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">9. 🔜 Next Steps</div>
+    <div class="steps">
+      <div class="step step-done"><span class="step-icon">✅</span><div class="step-text"><strong>Requirements Gathering</strong><span>Complete</span></div></div>
+      <div class="step step-done"><span class="step-icon">✅</span><div class="step-text"><strong>System Design &amp; Architecture v2.0</strong><span>Complete — this document</span></div></div>
+      <div class="step step-done"><span class="step-icon">✅</span><div class="step-text"><strong>Tech Stack Finalization</strong><span>Complete — IBM Granite, LangChain, Docling, ChromaDB confirmed</span></div></div>
+      <div class="step step-next"><span class="step-icon">🔜</span><div class="step-text"><strong>Sprint Planning</strong><span>Break 10-day build into daily tasks across 5 layers</span></div></div>
+      <div class="step step-later"><span class="step-icon">⏳</span><div class="step-text"><strong>Development Sprint 1</strong><span>LLM + Orchestration + Knowledge (Docling RAG) + Storage</span></div></div>
+      <div class="step step-later"><span class="step-icon">⏳</span><div class="step-text"><strong>Development Sprint 2</strong><span>UI + Dashboard + Alerts + Demo Prep</span></div></div>
+      <div class="step step-later"><span class="step-icon">⏳</span><div class="step-text"><strong>Demo Day</strong><span>Live demonstration of AstroMind MVP — Day 13–14</span></div></div>
+    </div>
+  </div>
+
+  <div class="footer">Made with IBM Bob</div>
+</div>
+</body>
+</html>

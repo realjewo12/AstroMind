@@ -1,0 +1,423 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AstroMind — Sprint Plan</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 40px 20px;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+
+  .doc-header { border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 28px; }
+  .doc-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .doc-header .subtitle { color: #57606a; font-size: 13px; }
+
+  /* Sprint summary bar */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .summary-card {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .summary-card .num { font-size: 24px; font-weight: 700; color: #3b82d4; }
+  .summary-card .label { font-size: 11px; color: #57606a; margin-top: 2px; }
+
+  /* Sprint header */
+  .sprint-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 0 12px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .sprint-1 { background: #eff6ff; border-left: 4px solid #3b82d4; color: #1d4ed8; }
+  .sprint-2 { background: #f0fdf4; border-left: 4px solid #22c55e; color: #166534; }
+  .sprint-days { font-size: 12px; font-weight: 400; color: #57606a; margin-left: auto; }
+
+  /* Day card */
+  .day-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #f7f8fa;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .day-num {
+    font-size: 11px; font-weight: 700;
+    background: #1f2328; color: #fff;
+    padding: 2px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .day-title { font-weight: 600; font-size: 13px; flex: 1; }
+  .day-layer {
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .layer-llm     { background: #fff7ed; color: #9a3412; }
+  .layer-orch    { background: #eff6ff; color: #1d4ed8; }
+  .layer-know    { background: #fefce8; color: #854d0e; }
+  .layer-data    { background: #f7f8fa; color: #374151; }
+  .layer-core    { background: #fdf4ff; color: #7e22ce; }
+  .layer-ui      { background: #f0fdf4; color: #166534; }
+  .layer-demo    { background: #fff1f2; color: #9f1239; }
+  .layer-multi   { background: #f0f9ff; color: #0369a1; }
+
+  .day-hours {
+    font-size: 11px; color: #57606a;
+    white-space: nowrap;
+  }
+
+  .day-body { padding: 12px 14px; }
+
+  .task-list { list-style: none; margin-bottom: 10px; }
+  .task-list li {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 4px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 13px;
+  }
+  .task-list li:last-child { border-bottom: none; }
+  .task-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+  .task-text { flex: 1; }
+  .task-file {
+    font-family: "Consolas", monospace;
+    font-size: 11px;
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #57606a;
+    white-space: nowrap;
+  }
+
+  .day-outcome {
+    margin-top: 8px;
+    padding: 7px 10px;
+    background: #f0fdf4;
+    border-left: 3px solid #22c55e;
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    color: #166534;
+  }
+  .day-outcome strong { margin-right: 4px; }
+
+  /* Milestone row */
+  .milestone {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: #fefce8;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .milestone-icon { font-size: 18px; }
+  .milestone strong { font-weight: 700; }
+  .milestone span { color: #57606a; font-size: 12px; }
+
+  /* Tech table */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+  th { background: #f7f8fa; font-weight: 600; padding: 7px 12px; text-align: left; border: 1px solid #e5e7eb; }
+  td { padding: 6px 12px; border: 1px solid #e5e7eb; }
+
+  .section-title {
+    font-size: 15px; font-weight: 700;
+    border-left: 4px solid #3b82d4;
+    padding-left: 10px;
+    margin: 28px 0 14px;
+  }
+
+  .footer {
+    margin-top: 48px; padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center; font-size: 12px; color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <h1>🚀 AstroMind — Sprint Plan</h1>
+    <div class="subtitle">10-Day MVP Build · 3–4 hours/day · IBM Granite + LangChain + Docling + Streamlit</div>
+  </div>
+
+  
+  <div class="summary-bar">
+    <div class="summary-card"><div class="num">10</div><div class="label">Build Days</div></div>
+    <div class="summary-card"><div class="num">2</div><div class="label">Sprints</div></div>
+    <div class="summary-card"><div class="num">5</div><div class="label">Architecture Layers</div></div>
+    <div class="summary-card"><div class="num">~35h</div><div class="label">Total Effort</div></div>
+  </div>
+
+  
+  <div class="sprint-header sprint-1">
+    ⚙️ Sprint 1 — Core Backend
+    <span class="sprint-days">Days 1–5 · LLM + Orchestration + Knowledge + Data</span>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 1</span>
+      <span class="day-title">IBM Granite Connection + Prompt Engineering</span>
+      <span class="day-layer layer-llm">LLM Layer</span>
+      <span class="day-hours">⏱ 3h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">🔑</span><span class="task-text">Create <span class="task-file">.env</span> file with IBM watsonx API key, project ID, and URL</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">llm/client.py</span> — WatsonxLLM wrapper that loads credentials from .env and returns a LangChain-compatible LLM object</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">llm/prompts.py</span> — full AstroMind system prompt with 5 sections including RAG context slot</span></li>
+        <li><span class="task-icon">🧪</span><span class="task-text">Test: send a raw "Hello, I'm feeling stressed" message to Granite and print the raw response</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 1:</strong> IBM Granite responds to a test message via Python</div>
+    </div>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 2</span>
+      <span class="day-title">LangChain Orchestration — Memory + Chain + Parser</span>
+      <span class="day-layer layer-orch">Orchestration Layer</span>
+      <span class="day-hours">⏱ 4h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">orchestration/memory.py</span> — ConversationBufferMemory setup, session-scoped</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">orchestration/output_parser.py</span> — Pydantic model for {mood, score, risk_level, response, coping_strategy} + StructuredOutputParser</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">orchestration/chain.py</span> — wire memory + prompt + Granite LLM + parser into one LangChain chain</span></li>
+        <li><span class="task-icon">🧪</span><span class="task-text">Test: send 3 back-to-back messages and confirm memory carries context between them</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 2:</strong> Multi-turn conversation works, Granite returns validated JSON every time</div>
+    </div>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 3</span>
+      <span class="day-title">Docling PDF Ingestion + ChromaDB Vector Store</span>
+      <span class="day-layer layer-know">Knowledge Layer</span>
+      <span class="day-hours">⏱ 4h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">📥</span><span class="task-text">Download NASA-STD-3001 Vol 2 and HRP Behavioral Health PDF → place in <span class="task-file">knowledge/docs/</span></span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">knowledge/ingestion.py</span> — Docling parses each PDF → LangChain TextSplitter chunks into ~500 token segments</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">knowledge/vectorstore.py</span> — ChromaDB stores chunks, exposes similarity_search(query) function</span></li>
+        <li><span class="task-icon">🧪</span><span class="task-text">Test: query "crew stress management" → confirm top 3 relevant NASA doc chunks are returned</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 3:</strong> NASA knowledge base is queryable — relevant passages surface on any psychological query</div>
+    </div>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 4</span>
+      <span class="day-title">AI Core — Mood Engine + Risk Classifier + Coping Selector</span>
+      <span class="day-layer layer-core">AI Core Layer</span>
+      <span class="day-hours">⏱ 4h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">core/mood_engine.py</span> — extract mood label + wellness score (0–100) from parsed Granite output</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write risk classifier inside mood_engine — dual detection: keyword scan + Granite risk_level field → final LOW/MEDIUM/HIGH</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">core/coping.py</span> — lookup table mapping each mood to 3 evidence-based coping strategies</span></li>
+        <li><span class="task-icon">🧪</span><span class="task-text">Test: feed 5 sample messages covering all moods → verify correct score, risk, and coping strategy for each</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 4:</strong> Full mood pipeline works end-to-end — message in, {mood, score, risk, coping} out</div>
+    </div>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 5</span>
+      <span class="day-title">SQLite Database + Session Summary Generator</span>
+      <span class="day-layer layer-data">Data Layer</span>
+      <span class="day-hours">⏱ 3h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">data/database.py</span> — create all 5 tables (sessions, mood_scores, messages, alerts, summaries) + insert/query functions</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">core/summarizer.py</span> — sends full session transcript to Granite via a separate summarization chain, stores result</span></li>
+        <li><span class="task-icon">🧪</span><span class="task-text">Test: run a 5-message session → confirm all rows written correctly to DB → confirm summary generated and stored</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 5:</strong> Full backend pipeline complete — every session is stored, summarized, and retrievable</div>
+    </div>
+  </div>
+
+  
+  <div class="milestone">
+    <span class="milestone-icon">🏁</span>
+    <div>
+      <strong>Sprint 1 Complete — Backend Milestone</strong><br />
+      <span>IBM Granite ↔ LangChain ↔ NASA RAG ↔ Mood Engine ↔ SQLite — fully wired and tested</span>
+    </div>
+  </div>
+
+  
+  <div class="sprint-header sprint-2">
+    🖥️ Sprint 2 — UI, Dashboard &amp; Demo
+    <span class="sprint-days">Days 6–10 · Streamlit UI + Polish + Demo Prep</span>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 6</span>
+      <span class="day-title">Streamlit Chat Interface</span>
+      <span class="day-layer layer-ui">UI Layer</span>
+      <span class="day-hours">⏱ 4h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">ui/chat.py</span> — st.chat_message bubbles for astronaut and AstroMind, input box, session state management</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">app.py</span> — Streamlit entry point, wires chat UI to LangChain chain, handles session start/end</span></li>
+        <li><span class="task-icon">🧪</span><span class="task-text">Test: run streamlit app, have a full 5-turn conversation, verify Granite responds in chat bubbles</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 6:</strong> Working chat UI — astronaut can type and AstroMind responds in real time</div>
+    </div>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 7</span>
+      <span class="day-title">Mood Dashboard + Alert Panel</span>
+      <span class="day-layer layer-ui">UI Layer</span>
+      <span class="day-hours">⏱ 4h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">ui/dashboard.py</span> — Plotly line chart of mood score over time, pulled from SQLite mood_scores table</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Write <span class="task-file">ui/alerts.py</span> — st.error() banner for HIGH risk, st.warning() for MEDIUM, colour-coded risk badge per message</span></li>
+        <li><span class="task-icon">🔗</span><span class="task-text">Integrate dashboard + alerts into <span class="task-file">app.py</span> sidebar alongside chat</span></li>
+        <li><span class="task-icon">🧪</span><span class="task-text">Test: simulate a HIGH risk message → confirm red alert banner appears instantly</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 7:</strong> Live mood chart + risk alerts visible alongside every conversation</div>
+    </div>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 8</span>
+      <span class="day-title">Session Summary View + Full Integration</span>
+      <span class="day-layer layer-multi">Integration</span>
+      <span class="day-hours">⏱ 3h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">📝</span><span class="task-text">Add session summary panel to UI — st.expander shows AI-generated summary + final score + risk level at session end</span></li>
+        <li><span class="task-icon">📝</span><span class="task-text">Add session history sidebar — list of past sessions with date, score, and risk badge pulled from SQLite</span></li>
+        <li><span class="task-icon">🔗</span><span class="task-text">End-to-end integration test — full session: chat → mood tracking → alert → end session → summary → stored in DB</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 8:</strong> Complete user journey works from first message to session summary</div>
+    </div>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 9</span>
+      <span class="day-title">Testing + Bug Fixes + UI Polish</span>
+      <span class="day-layer layer-multi">QA</span>
+      <span class="day-hours">⏱ 4h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">🧪</span><span class="task-text">Write <span class="task-file">tests/test_mood.py</span> — unit tests for all 5 mood classifications and health score formula</span></li>
+        <li><span class="task-icon">🧪</span><span class="task-text">Write <span class="task-file">tests/test_scenarios.py</span> — 3 scripted conversation scenarios: calm crew member, stressed crew, HIGH risk detection</span></li>
+        <li><span class="task-icon">🎨</span><span class="task-text">UI polish — page title, AstroMind logo/icon, sidebar layout, colour theme, welcome message</span></li>
+        <li><span class="task-icon">🐛</span><span class="task-text">Fix any bugs found during testing — edge cases in JSON parsing, empty responses, DB errors</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 9:</strong> All tests pass, UI is clean and presentable, no known bugs</div>
+    </div>
+  </div>
+
+  
+  <div class="day-card">
+    <div class="day-header">
+      <span class="day-num">DAY 10</span>
+      <span class="day-title">Demo Preparation + README + Final Run-Through</span>
+      <span class="day-layer layer-demo">Demo Day</span>
+      <span class="day-hours">⏱ 3h</span>
+    </div>
+    <div class="day-body">
+      <ul class="task-list">
+        <li><span class="task-icon">📄</span><span class="task-text">Write <span class="task-file">README.md</span> — project overview, setup instructions, how to run, architecture summary</span></li>
+        <li><span class="task-icon">🎬</span><span class="task-text">Prepare demo script — 3 scripted conversations showing CALM → STRESSED → HIGH RISK escalation arc</span></li>
+        <li><span class="task-icon">✅</span><span class="task-text">Final end-to-end run-through — fresh venv, fresh DB, full demo script from scratch</span></li>
+        <li><span class="task-icon">🚀</span><span class="task-text">Optional stretch: deploy to Streamlit Cloud for a shareable public URL</span></li>
+      </ul>
+      <div class="day-outcome"><strong>✅ End of Day 10:</strong> AstroMind MVP is demo-ready — live, tested, and documented</div>
+    </div>
+  </div>
+
+  
+  <div class="milestone">
+    <span class="milestone-icon">🎉</span>
+    <div>
+      <strong>Sprint 2 Complete — MVP Demo Ready</strong><br />
+      <span>Full AstroMind system live: Chat · Mood Tracking · Risk Alerts · NASA RAG · Session Summaries</span>
+    </div>
+  </div>
+
+  
+  <div class="section-title">📁 Files Delivered by End of Sprint 2</div>
+  <table>
+    <tr><th>File</th><th>Created On</th><th>Layer</th></tr>
+    <tr><td>llm/client.py</td><td>Day 1</td><td>LLM</td></tr>
+    <tr><td>llm/prompts.py</td><td>Day 1</td><td>LLM</td></tr>
+    <tr><td>orchestration/memory.py</td><td>Day 2</td><td>Orchestration</td></tr>
+    <tr><td>orchestration/output_parser.py</td><td>Day 2</td><td>Orchestration</td></tr>
+    <tr><td>orchestration/chain.py</td><td>Day 2</td><td>Orchestration</td></tr>
+    <tr><td>knowledge/ingestion.py</td><td>Day 3</td><td>Knowledge</td></tr>
+    <tr><td>knowledge/vectorstore.py</td><td>Day 3</td><td>Knowledge</td></tr>
+    <tr><td>core/mood_engine.py</td><td>Day 4</td><td>AI Core</td></tr>
+    <tr><td>core/coping.py</td><td>Day 4</td><td>AI Core</td></tr>
+    <tr><td>data/database.py</td><td>Day 5</td><td>Data</td></tr>
+    <tr><td>core/summarizer.py</td><td>Day 5</td><td>AI Core</td></tr>
+    <tr><td>ui/chat.py</td><td>Day 6</td><td>UI</td></tr>
+    <tr><td>app.py</td><td>Day 6</td><td>UI</td></tr>
+    <tr><td>ui/dashboard.py</td><td>Day 7</td><td>UI</td></tr>
+    <tr><td>ui/alerts.py</td><td>Day 7</td><td>UI</td></tr>
+    <tr><td>tests/test_mood.py</td><td>Day 9</td><td>Testing</td></tr>
+    <tr><td>tests/test_scenarios.py</td><td>Day 9</td><td>Testing</td></tr>
+    <tr><td>README.md</td><td>Day 10</td><td>Docs</td></tr>
+  </table>
+
+  <div class="footer">Made with IBM Bob</div>
+</div>
+</body>
+</html>

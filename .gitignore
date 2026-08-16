@@ -1,0 +1,22 @@
+.env
+
+data/astromind.db
+*.db
+
+venv/
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# NASA PDFs
+knowledge/docs/*.pdf
+
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
