@@ -57,7 +57,12 @@ first-response presence — consistent, available, and non-judgemental —
 during the long stretches between formal psychological check-ins.
 """
 
-def build_prompt(user_message: str, context: str = "", mission_context: str = "") -> str:
+def build_prompt(
+    user_message: str,
+    context: str = "",
+    mission_context: str = "",
+    chat_history: str = "",
+) -> str:
 
     mission_block = ""
     if mission_context:
@@ -83,4 +88,14 @@ and mission protocols. When using this knowledge:
 {context}
 """
 
-    return f"{SYSTEM_PROMPT}{mission_block}{context_block}\n## Crew Member Message\n{user_message}"
+    history_block = ""
+    if chat_history:
+        history_block = f"""
+## Conversation History
+The following is the conversation so far this session.
+Use it to maintain continuity — remember what the crew member has already told you.
+
+{chat_history}
+"""
+
+    return f"{SYSTEM_PROMPT}{mission_block}{context_block}{history_block}\n## Crew Member Message\n{user_message}"

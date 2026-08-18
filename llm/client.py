@@ -22,8 +22,12 @@ def get_llm() -> WatsonxLLM:
             apikey=SecretStr(os.environ["WATSONX_API_KEY"]),
             params={
                 "decoding_method": "greedy",
-                "max_new_tokens": 512,
-                "temperature": 0.3,
+                "max_new_tokens": 600,
+                # min_new_tokens forces the model to always produce at least
+                # this many tokens — prevents the silent empty-response bug
+                # seen with Granite 4h-small on long structured prompts.
+                "min_new_tokens": 10,
+                "temperature": 0.1,
             },
         )
     return _llm_instance
