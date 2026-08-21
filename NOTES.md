@@ -56,7 +56,7 @@ Multi-turn conversation works, Granite returns validated JSON every time.
 
 ---
 
-## Status: Day 3 — Not started
+## Status: Day 3 Complete ✅
 
 ### Goal
 Docling PDF Ingestion + ChromaDB Vector Store — Knowledge Layer
@@ -98,6 +98,19 @@ psychological query can surface the most relevant NASA passages as RAG context.
 - Each chunk is a non-empty string from one of the two NASA PDFs
 - Metadata on each chunk includes `source` filename
 - Re-running `test_knowledge.py` a second time does not duplicate chunks in the DB
+
+### Bugs encountered — Day 3
+- **HuggingFace XET CDN block**: `sentence-transformers` and Docling's `docling-layout-heron` both tried to download via `us.aws.cdn.hf.co` XET protocol — blocked on this network. Fix: switched embeddings to `chromadb.utils.embedding_functions.DefaultEmbeddingFunction` (ONNX, bundled in chromadb package, one-time ~79 MB standard HTTPS download).
+- **Docling PyTorch/MSVC crash**: Even with `do_ocr=False` and `do_table_structure=False`, Docling's `StandardPdfPipeline` still loaded a PyTorch neural layout model which requires MSVC `cl.exe` compiler on Windows for JIT. Fix: replaced Docling entirely with PyMuPDF (`pymupdf`). For clean digital PDFs, PyMuPDF extracts the text layer in milliseconds with zero model dependencies.
+- **ChromaDB telemetry noise**: `capture() takes 1 positional argument but 3 were given` — harmless version mismatch in ChromaDB's internal telemetry client. Does not affect functionality.
+- **`import fitz` deprecation**: PyMuPDF's old `fitz` module alias is deprecated. Fix: `import pymupdf as fitz`.
+
+### Key design decisions — Day 3 final
+- **PyMuPDF over Docling**: Docling requires PyTorch + MSVC + HuggingFace model downloads. PyMuPDF reads the PDF text layer directly — no models, no network, no compiler. Output quality is equivalent for clean digital PDFs.
+- **ChromaDB `DefaultEmbeddingFunction`**: Uses `all-MiniLM-L6-v2` in ONNX format bundled with chromadb. Identical model to the originally planned `HuggingFaceEmbeddings`, fully local after one-time download.
+- **`_ChromaEFAdapter`**: 6-line bridge class that satisfies LangChain's `Embeddings` ABC using ChromaDB's native callable embedding function.
+- **740 chunks total**: HFBP (10) + HRP IRP (70) + NASA-STD-3001 Vol 2 (660). Dominated by the standards document as expected.
+- **Re-ingestion guard confirmed**: `_collection.count() > 0` check works — second test run loaded existing 740 chunks instantly, zero new embeddings computed.
 
 ### Day 4 preview
 - Wire `similarity_search()` into `AstroMindChain.chat()` — top-k chunks injected as `rag_context` into `build_prompt()`

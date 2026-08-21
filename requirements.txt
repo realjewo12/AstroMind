@@ -10,7 +10,7 @@ langchain-community==0.2.6
 ibm-watsonx-ai==1.0.10
 
 # ── Document Processing (Docling + RAG) ───────────────────
-docling
+pymupdf
 chromadb==0.5.3
 
 # ── Data Validation ───────────────────────────────────────
