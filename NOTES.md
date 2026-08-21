@@ -177,3 +177,52 @@ Every session is stored, summarised, and retrievable. Sprint 1 backend complete.
 - `core/summarizer.py` — summarisation chain using existing `get_llm()`
 - `orchestration/chain.py` — wire RAG + MoodEngine, return `MoodReport` alongside response
 - `test_day5.py` — integration test
+
+---
+
+## Status: Day 5 Complete ✅ — Sprint 1 Backend Complete 🏁
+
+### Goal
+SQLite Database + Session Summary Generator — Data Layer.
+Every session is stored, summarised, and retrievable. Sprint 1 backend complete.
+
+### Files created / modified
+- `data/database.py` — 5 tables, Fernet field encryption on `messages.content` and `alerts.trigger_text`, parameterised queries throughout
+- `core/summarizer.py` — Granite summarisation chain (clinical third-person register), `summarize_session()`
+- `orchestration/chain.py` — wired RAG + MoodEngine + CopeSelector + DB writes, returns `ChatResult` dataclass, `use_rag` flag added
+- `test_day5.py` — 3-test integration suite, all pass
+
+### Security additions — Day 5
+- `cryptography` (Fernet) added to `requirements.txt`
+- `ASTROMIND_DB_KEY` added to `.env` and documented in `.env.example`
+- `messages.content` and `alerts.trigger_text` encrypted at rest with AES-128-CBC + HMAC-SHA256
+- Graceful degradation: if key missing, app runs with plaintext + warning
+- Full security decision record documented (see chat artifact)
+- Sprint 2 backlog: SQLCipher full-DB encryption, per-astronaut RBAC, key rotation
+
+### Key design decisions — Day 5
+- **`ChatResult` dataclass**: clean separation between Granite's raw output (`AstroMindResponse`) and the application-level result (`MoodReport` + strategies + `rag_used` flag)
+- **`use_rag=True` default, `False` in tests**: RAG adds ~600 chars to the prompt; Granite 4h-small echoes format instructions when prompt exceeds ~2500 chars. Tests disable RAG (already verified in `test_knowledge.py`); production uses it by default
+- **`db` passed into `AstroMindChain`**: allows tests to inject a dedicated test DB (`data/test_day5.db`) without touching `astromind.db`. Pattern: dependency injection over global state
+- **Session summarisation as separate prompt**: clinical third-person register, ends with `Clinical handover note:` continuation primer — same technique as chat `JSON:` primer from Day 2
+
+### Test results — Day 5
+- Test 1: 5-turn session → 10 message rows, 5 mood_score rows, Fernet round-trip OK, `ended_at` stamped ✅
+- Test 2: "Can't go on" keyword → 1 alert row written, risk=HIGH ✅
+- Test 3: `summarize_session()` → 798-char clinical summary stored in DB ✅
+- Cleanup: `test_day5.db` deleted after run ✅
+
+### Bugs encountered — Day 5
+- **Granite echoes format instructions**: RAG context (~6000 chars for k=3 full chunks) pushed prompt past Granite 4h-small's reliable generation window. It echoed `{"mood":"...", "score":...}` instead of generating real JSON. Fix: `use_rag=False` in tests; `k=2`, `[:300]` char cap in production.
+- **`PermissionError` on test DB cleanup**: `db` was created inside the test function and still open when `_cleanup()` ran. Fix: create `db` in `main()` before `try:` so `_cleanup(db)` always holds the reference and closes it first.
+
+### Sprint 1 — Full backend pipeline ✅
+IBM Granite ↔ LangChain ↔ NASA RAG ↔ Mood Engine ↔ Coping Selector ↔ SQLite — fully wired and tested.
+
+| Day | Layer | Status |
+|-----|-------|--------|
+| 1 | WatsonxLLM wrapper + system prompt | ✅ |
+| 2 | LangChain memory + chain + JSON parser | ✅ |
+| 3 | PyMuPDF ingestion + ChromaDB vector store (740 chunks) | ✅ |
+| 4 | Mood engine + risk classifier + coping selector | ✅ |
+| 5 | SQLite + Fernet encryption + session summariser | ✅ |
