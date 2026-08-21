@@ -96,10 +96,21 @@ class MoodEngine:
         report = engine.analyse(response)
     """
 
-    def analyse(self, response: AstroMindResponse) -> MoodReport:
-        """Full pipeline: score normalise → keyword scan → risk classify → MoodReport."""
+    def analyse(self, response: AstroMindResponse, user_message: str = "") -> MoodReport:
+        """Full pipeline: score normalise → keyword scan → risk classify → MoodReport.
+
+        Parameters
+        ----------
+        response     : AstroMindResponse  Granite's validated output
+        user_message : str                The astronaut's raw message — scanned for
+                                          crisis keywords. Falls back to response.response
+                                          if not supplied (backwards compatible).
+        """
         wellness = self._to_wellness(response.score)
-        flags    = self._scan_keywords(response.response)
+        # Scan the astronaut's message — that's where crisis phrases appear,
+        # not in the AI's reply.
+        scan_target = user_message if user_message else response.response
+        flags    = self._scan_keywords(scan_target)
         risk     = self._classify_risk(response.risk_level, flags)
 
         return MoodReport(

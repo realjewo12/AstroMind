@@ -206,7 +206,9 @@ class AstroMindChain:
         )
 
         # ── Step 6: Mood analysis ─────────────────────────────────────────────
-        report: MoodReport = self._engine.analyse(parsed)
+        # Pass user_message so the keyword scanner checks what the astronaut
+        # said, not what the AI replied.
+        report: MoodReport = self._engine.analyse(parsed, user_message=user_message)
 
         # ── Step 7: Coping strategies ─────────────────────────────────────────
         strategies = self._coping.for_mood(report.mood)
