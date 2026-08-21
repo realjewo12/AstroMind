@@ -116,3 +116,64 @@ psychological query can surface the most relevant NASA passages as RAG context.
 - Wire `similarity_search()` into `AstroMindChain.chat()` — top-k chunks injected as `rag_context` into `build_prompt()`
 - The `rag_context` slot in `build_prompt()` is already wired and waiting (built Day 1)
 - Files: update `orchestration/chain.py` only — no new files needed
+
+---
+
+## Status: Day 4 Complete ✅
+
+### Goal
+AI Core Layer — Mood Engine + Risk Classifier + Coping Selector.
+Full mood pipeline works end-to-end: message in, {mood, wellness, risk, coping} out.
+
+### Files created
+- `core/__init__.py` — package marker
+- `core/mood_engine.py` — MoodEngine: wellness normalisation (1–10 → 0–100), dual risk detection, MoodReport dataclass, RiskLevel enum
+- `core/coping.py` — CopingStrategy dataclass (frozen), 8-mood lookup table + default fallback, CopeSelector
+- `test_core.py` — 5 unit tests, all pass, zero LLM calls
+
+### Key design decisions — Day 4
+- **Dual risk detection**: keyword scanner can only raise Granite's risk level, never lower it. Safety net is independent of the model.
+- **`RiskLevel` enum**: prevents typo bugs downstream. UI and reporting layer compare `RiskLevel.HIGH`, not the string `"high"`.
+- **`frozen=True` on `CopingStrategy`**: strategies are constants — immutable by design, hashable, safe to cache.
+- **`default` fallback in coping table**: `CopeSelector.for_mood()` never raises `KeyError`. Unknown Granite mood labels silently fall back to 3 universal strategies.
+- **No LLM in tests**: all 5 tests construct `AstroMindResponse` manually and complete in under 1 second.
+
+### Test results — Day 4
+- Test 1: calm / score=9 → wellness=89, risk=LOW ✅
+- Test 2: anxious / score=4 → wellness=33, risk=MEDIUM, Box Breathing confirmed ✅
+- Test 3: fatigued / score=3 → wellness=22, risk=LOW, Strategic Nap confirmed ✅
+- Test 4: unknown mood 'melancholic' → default fallback, no crash ✅
+- Test 5: Granite=medium + "can't go on" → risk=HIGH, keyword flag captured ✅
+
+### Bugs encountered — Day 4
+- None. Pure Python layer with no external dependencies ran cleanly first attempt.
+
+### Day 5 preview
+- Wire RAG into `AstroMindChain.chat()`: call `similarity_search(user_message)`, format top-k chunks as `rag_context`, inject into `build_prompt()`
+- Wire `MoodEngine` and `CopeSelector` into the chain so every response produces a full `MoodReport`
+- Build SQLite data layer and session summariser
+- Files: `data/database.py`, `core/summarizer.py`, update `orchestration/chain.py`, test script
+
+---
+
+## Status: Day 5 — In Progress 🔄
+
+### Goal
+SQLite Database + Session Summary Generator — Data Layer.
+Every session is stored, summarised, and retrievable. Sprint 1 backend complete.
+
+### Milestones
+
+| # | Task | Output |
+|---|------|--------|
+| M1 | Write `data/database.py` — 5 tables + insert/query functions | DB schema live |
+| M2 | Wire RAG + MoodEngine into `orchestration/chain.py` | Chain returns `MoodReport` |
+| M3 | Write `core/summarizer.py` — Granite summarisation chain | `summarize_session()` |
+| M4 | Write `test_day5.py` — 5-message session, assert DB rows + summary | All assertions pass |
+| M5 | Update `Notes.md` | Day 5 complete log |
+
+### Files to create / modify
+- `data/database.py` — SQLite schema + CRUD functions
+- `core/summarizer.py` — summarisation chain using existing `get_llm()`
+- `orchestration/chain.py` — wire RAG + MoodEngine, return `MoodReport` alongside response
+- `test_day5.py` — integration test
